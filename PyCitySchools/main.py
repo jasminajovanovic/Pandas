@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-#TODO format money output to include $
-
 # Dependencies and Setup
 import pandas as pd
 import numpy as np
@@ -20,7 +18,6 @@ schoolDataComplete = pd.merge(studentData, schoolData, how="left", on=["school_n
 schoolNames = schoolData["school_name"]
 
 def summarizeDistrict(schoolDataComplete):
-# TODO: improve this code like with schools summary
     totalSchools = len(schoolDataComplete['school_name'].unique())
     totalStudents = schoolDataComplete.shape[0]
     totalBudget = schoolData['budget'].sum()
@@ -99,6 +96,7 @@ def sortNumSchools (by, howMany, order):
     # Top Performing schools
     if order == 'descending':
         sortedSchoolsSummary = schoolsSummary.sort_values([by], ascending=False)
+    # Bottom Performing schools
     else:
         sortedSchoolsSummary = schoolsSummary.sort_values([by], ascending=True)
     sortedSchoolsSummary = sortedSchoolsSummary.set_index('School Name')
@@ -106,7 +104,6 @@ def sortNumSchools (by, howMany, order):
     return sortedSchoolsSummary.head(howMany)
 
 def summarizeScoresBySpendingBudget(schoolsSummary):
-
     bins=[0, 585, 615, 645, 675]
     binLabels = ["<$585", "\$585-\$615", "\$615-\$645", "\$645-\$675"]
     #convert per student budget back to float for binning
@@ -119,7 +116,6 @@ def summarizeScoresBySpendingBudget(schoolsSummary):
 def summarizeScoresBySchoolSize(schoolsSummary):
     bins = [0, 1000, 2000, 5000]
     binLabels = ["Small (<1000)", "Medium (1000-2000)", "Large (2000-5000)"]
-
     sizeRanges = pd.cut(schoolsSummary["Total Students"], bins, labels=binLabels)
     schoolPerfBySize = schoolsSummary[["School Name", "Average Math Score", "Average Reading Score", "% Passing Math", "% Passing Reading", "Overall Passing Rate"]]
     schoolPerfBySize ["School Size"] = sizeRanges
@@ -127,7 +123,6 @@ def summarizeScoresBySchoolSize(schoolsSummary):
     return (schoolPerfBySize.sort_values(by="School Size").groupby("School Size").mean().round(6))
 
 def summarizeScoresBySchoolType(schoolsSummary):
-    # schoolsSummary.head(1)
     return schoolsSummary[["School Type", "Average Math Score", "Average Reading Score", "% Passing Math", "% Passing Reading", "Overall Passing Rate"]].sort_values(by="School Type").groupby("School Type").mean().round(6)
 
 # Perform the analysis
@@ -137,19 +132,17 @@ schoolsSummary = summarizeSchools(schoolDataComplete)
 # Display only relevant columns
 districtSummary [['Total Schools', 'Total Students', 'Total Budget', 'Average Math Score', 'Average Reading Score','% Students Pass Math', "% Students Pass Reading", 'Average Pass Rate']]
 schoolsSummary [['School Name', 'Per Student Budget', 'Total Students', 'Overall Passing Rate']]
-#
-
-
 # Top Performing schools
 sortNumSchools ("Overall Passing Rate", 5, "descending")
 # Bottom Performing schools
 sortNumSchools("Overall Passing Rate", 5, "ascending")
-
+# Average Math Scores by Grade
 summarizeScoresByGrade (schoolDataComplete, "math")
+# Average Reading Score by Grade
 summarizeScoresByGrade (schoolDataComplete, "reading")
-
+# Scores by Spending Budget Categories
 summarizeScoresBySpendingBudget(schoolsSummary)
+# Average Grades by School Size Categories
 summarizeScoresBySchoolSize(schoolsSummary)
+# Average Grades by School Type
 summarizeScoresBySchoolType(schoolsSummary)
-# size_bins = [0, 1000, 2000, 5000]
-# group_names = ["Small (<1000)", "Medium (1000-2000)", "Large (2000-5000)"]
